@@ -1,22 +1,25 @@
 "use strict";
 
-// server/server.js
+// server.js
 var express = require("express");
 
-var cors = require("cors");
+var cors = require('cors');
 
 var path = require("path");
 
 var PORT = process.env.PORT || 4000;
-var app = express(); // Tell Express to serve the static files from React
+var app = express(); // Parse requests of content-type - application/json.
 
-app.use(express["static"](path.join(__dirname, 'react', 'build'))); // Add CORS support.
+app.use(express.json()); // Add CORS support.
 
-app.use(cors());
+app.use(cors()); // Tell Express to serve the static files from React
+
+app.use(express["static"](path.join(__dirname, 'react', 'build')));
 app.get('/', function (req, res) {
   res.send('flowers smell nice');
 });
 app.get("/api", function (req, res) {
+  console.log("hit");
   res.json({
     message: "Hello from server!"
   });
