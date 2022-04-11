@@ -2,11 +2,11 @@
   "name": "express",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "nodemon --exec babel-node server/index.js",
-    "start-with-node": "node server/index.js",
-    "build": "babel server/index.js --out-file server.compiled.js"
+    "start": "nodemon --exec babel-node server.js",
+    "start-with-node": "node server.js",
+    "build": "babel server.js --out-file server.compiled.js"
   },
   "keywords": [],
   "author": "",

@@ -1,14 +1,15 @@
-// server/index.js
+// server/server.js
 
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const PORT = process.env.PORT || 4000;
 
 const app = express();
 
-// Parse requests of content-type - application/json.
-app.use(express.json());
+// Tell Express to serve the static files from React
+app.use(express.static(path.join(__dirname, 'react', 'build')))
 
 // Add CORS support.
 app.use(cors());
