@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server/index.js"
+    "start": "nodemon --exec babel-node server/index.js",
+    "start-with-node": "node server/index.js",
+    "build": "babel server/index.js --out-file server.compiled.js"
   },
   "keywords": [],
   "author": "",
@@ -12,5 +14,12 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.9",
+    "@babel/node": "^7.16.8",
+    "@babel/preset-env": "^7.16.11",
+    "nodemon": "^2.0.15"
   }
 }
