@@ -1,38 +1,39 @@
-import logo from '../logo.svg';
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import '../css/App.css';
-import {getData} from "../data/repository";
+import Navbar from "./Navbar";
+import Header from './Header';
+import Home from './Home';
+import Footer from './Footer';
+import Register from "./Register";
+import Login from "./Login";
 
-function App() {
-  const [data, setData] = useState(null);
+export default function App() {
+  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    async function loadData() {
-      const currentData = await getData();
-      setData(currentData);
-    }
-
-    loadData();
-  }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          {!data ? "Loading..." : data}
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="d-flex flex-column min-vh-100" id="top">
+      <Router>
+        <Navbar user={user} logoutUser={null} />
+        <main role="main">
+          <div>
+            <Switch>
+              <Route path="/login">
+                <Login />
+              </Route>
+              <Route path="/register">
+                <Register />
+              </Route>
+              <Route path="/">
+                <Header />
+                <Home />
+              </Route>
+            </Switch>
+          </div>
+        </main>
+        <Footer />
+      </Router>
     </div>
   );
 }
-
-export default App;
