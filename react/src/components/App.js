@@ -7,23 +7,35 @@ import Home from './Home';
 import Footer from './Footer';
 import Register from "./Register";
 import Login from "./Login";
+import { getUser, getSelectedUser, removeUser, removeSelectedUser } from "../data/repository";
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(getUser);
+  const [selectedUser, setSelectedUser] = useState(getSelectedUser());
 
+  const loginUser = (user) => {
+    setUser(user);
+  };
+
+  const logoutUser = () => {
+    removeUser();
+    removeSelectedUser();
+    setUser(null);
+    setSelectedUser(null);
+  };
 
   return (
     <div className="d-flex flex-column min-vh-100" id="top">
       <Router>
-        <Navbar user={user} logoutUser={null} />
+        <Navbar user={user} logoutUser={logoutUser} />
         <main role="main">
           <div>
             <Switch>
               <Route path="/login">
-                <Login />
+                <Login loginUser={loginUser} />
               </Route>
               <Route path="/register">
-                <Register />
+                <Register loginUser={loginUser} />
               </Route>
               <Route path="/">
                 <Header />

@@ -3,8 +3,6 @@ const express = require("express");
 const cors = require('cors');
 const serverless = require('serverless-http');
 
-const PORT = process.env.PORT || 4000;
-
 const app = express();
 
 // Parse requests of content-type - application/json.
@@ -20,6 +18,11 @@ app.get('/', (req, res) => {
 app.get("/api", (req, res) => {
     res.json({ message: "Hello from server!" });
 });
+
+//Add routes
+require('./routes/user.routes')(express, app);
+
+const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {
     console.log(`Server listening at port ${PORT}`);

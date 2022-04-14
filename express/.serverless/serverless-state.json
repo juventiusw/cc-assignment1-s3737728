@@ -100,7 +100,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/express/dev/1649880723625-2022-04-13T20:12:03.625Z/express.zip"
+                "S3Key": "serverless/express/dev/1649957355574-2022-04-14T17:29:15.574Z/express.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs14.x",
@@ -113,14 +113,14 @@
               "AppLogGroup"
             ]
           },
-          "AppLambdaVersionkOnzLloc4u4pplHWsyeW5tZd8neXh1bjL3EdD2VRU": {
+          "AppLambdaVersionDgKsbHbAGvyTyezP34k6YUDcz7siV4V9p4UOdvuSql4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "AppLambdaFunction"
               },
-              "CodeSha256": "XrdOIreID3GW1PPvTzP9DvkkQCYTgoNz/0Z1qANwZKM="
+              "CodeSha256": "CIdVjczjHKDmha0bALcKO534m+Nt0MG/Vgi6VEmlbck="
             }
           },
           "ApiGatewayRestApi": {
@@ -338,7 +338,7 @@
               "AppLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1649880720105": {
+          "ApiGatewayDeployment1649957349726": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -403,7 +403,7 @@
           "AppLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AppLambdaVersionkOnzLloc4u4pplHWsyeW5tZd8neXh1bjL3EdD2VRU"
+              "Ref": "AppLambdaVersionDgKsbHbAGvyTyezP34k6YUDcz7siV4V9p4UOdvuSql4"
             },
             "Export": {
               "Name": "sls-express-dev-AppLambdaFunctionQualifiedArn"
@@ -579,7 +579,7 @@
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "AppLambdaVersionkOnzLloc4u4pplHWsyeW5tZd8neXh1bjL3EdD2VRU"
+        "versionLogicalId": "AppLambdaVersionDgKsbHbAGvyTyezP34k6YUDcz7siV4V9p4UOdvuSql4"
       }
     },
     "configValidationMode": "warn",
@@ -598,7 +598,7 @@
     "artifact": "/Users/juventiuswu/Documents/Cloud Computing/cc-assignment1-s3737728/express/.serverless/express.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/express/dev/1649880723625-2022-04-13T20:12:03.625Z",
+    "artifactDirectoryName": "serverless/express/dev/1649957355574-2022-04-14T17:29:15.574Z",
     "artifact": "express.zip"
   }
 }
