@@ -3,8 +3,9 @@ import axios from "axios";
 // --- Constants ----------------------------------------------------------------------------------
 const USER_KEY = "user";
 const SELUSER_KEY = "seluser";
-const ENDPOINT = "http://localhost:4000";
-const API_HOST = ENDPOINT;
+const LOCALHOST = "http://localhost:4000"; // USE THIS WHEN DEVELOPING LOCALLY
+// const GATEWAY = "https://d13dp2cyque0mj.cloudfront.net"; // USE THIS WHEN APP IS DEPLOYED
+const API_HOST = LOCALHOST;
 
 async function findUser(id) {
     const response = await axios.get(API_HOST + `/api/users/select/${id}`);

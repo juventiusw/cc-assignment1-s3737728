@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
-    res.send('flowers smell nice');
+    res.send('flowers smell nice!');
 });
 
 app.get("/api", (req, res) => {
