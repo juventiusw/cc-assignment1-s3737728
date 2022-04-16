@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-// import { verifyUser } from "../data/repository";
+import { verifyUser } from "../data/repository";
 import styles from '../css/LoginRegister.module.css';
 import sanitize from 'sanitize-html';
 
@@ -15,7 +15,26 @@ export default function Login(props) {
     };
 
     const handleSubmit = async (event) => {
+        event.preventDefault();
 
+        const data = {};
+        data["username"] = sanitize(fields.username);
+        data["password"] = sanitize(fields.password);
+
+        const user = await verifyUser(data);
+
+        if(user === null) {
+            // Login failed, reset password field to blank and set error message.
+            setFields({ ...fields, password: "" });
+            setErrorMessage("Username and / or password is invalid, please try again.");
+            return;
+        }
+
+        // Set user state.
+        props.loginUser(user);
+
+        // Navigate to the profile page.
+        history.push("/profile");
     };
 
     return (

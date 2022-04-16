@@ -3,9 +3,21 @@ import axios from "axios";
 // --- Constants ----------------------------------------------------------------------------------
 const USER_KEY = "user";
 const SELUSER_KEY = "seluser";
-const LOCALHOST = "http://localhost:4000"; // USE THIS WHEN DEVELOPING LOCALLY
-// const GATEWAY = "https://d13dp2cyque0mj.cloudfront.net"; // USE THIS WHEN APP IS DEPLOYED
-const API_HOST = LOCALHOST;
+// const LOCALHOST = "http://localhost:4000"; // USE THIS WHEN DEVELOPING LOCALLY
+const GATEWAY = "https://d13dp2cyque0mj.cloudfront.net"; // USE THIS WHEN APP IS DEPLOYED
+const API_HOST = GATEWAY;
+
+// --- User ---------------------------------------------------------------------------------------
+async function verifyUser(data) {
+    const response = await axios.post(API_HOST + "/api/users/login", data);
+    const user = response.data;
+
+    // The login is also persistent as it is stored in local storage.
+    if(user !== null)
+        setUser(user);
+
+    return user;
+}
 
 async function findUser(id) {
     const response = await axios.get(API_HOST + `/api/users/select/${id}`);
@@ -51,7 +63,7 @@ function removeSelectedUser() {
 }
 
 export {
-    findUser, findUserByUsername, setUser,
+    verifyUser, findUser, findUserByUsername, setUser,
     setSelectedUser, createUser, getUser,
     getSelectedUser, removeUser, removeSelectedUser
 }

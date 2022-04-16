@@ -56,7 +56,7 @@ export default function Register(props) {
         setUser(user);
 
         // Navigate to the profile page.
-        history.push("/");
+        history.push("/profile");
     };
 
     const handleValidation = async () => {

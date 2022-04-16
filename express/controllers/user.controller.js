@@ -95,11 +95,25 @@ exports.create = async(req, res) => {
 
 };
 
-exports.update = async(req, res) => {
+exports.login = async (req, res) => {
+
     const params = {
         TableName: 'user',
-        Item: req.body
+        FilterExpression: 'username = :username',
+        ExpressionAttributeValues: {
+            ':username': req.body.username
+        }
     };
-    const user = await dynamo.dynamoClient.put(params).promise();
-    res.json(user);
-};
+    try {
+        const user = await dynamo.dynamoClient.scan(params).promise();
+        let state = typeof user.Items[0];
+        if(state === "undefined" || bcrypt.compareSync(req.body.password, user.Items[0].password_hash)) {
+            // Login failed.
+            res.json(null);
+        }else {
+            res.json(user.Items[0]);
+        }
+    }catch (err) {
+        console.log(err);
+    }
+}
