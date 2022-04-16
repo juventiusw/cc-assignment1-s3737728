@@ -21,6 +21,9 @@ app.get("/api", (req, res) => {
 
 //Add routes
 require('./routes/user.routes')(express, app);
+require("./routes/post.routes.js")(express, app);
+require("./routes/reply.routes.js")(express, app);
+require("./routes/image.routes.js")(express, app);
 
 const PORT = process.env.PORT || 4000;
 
