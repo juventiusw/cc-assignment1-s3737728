@@ -7,6 +7,8 @@ import Home from './Home';
 import Footer from './Footer';
 import Register from "./Register";
 import Login from "./Login";
+import MyProfile from "./MyProfile";
+import EditProfile from "./EditProfile";
 import { getUser, getSelectedUser, removeUser, removeSelectedUser } from "../data/repository";
 
 export default function App() {
@@ -36,6 +38,12 @@ export default function App() {
               </Route>
               <Route path="/register">
                 <Register loginUser={loginUser} />
+              </Route>
+              <Route path="/profile">
+                <MyProfile user={user} logoutUser={logoutUser} />
+              </Route>
+              <Route path="/editprofile">
+                <EditProfile user={user} setUser={setUser} />
               </Route>
               <Route path="/">
                 <Header />

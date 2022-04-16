@@ -37,6 +37,59 @@ async function createUser(user) {
     return response.data;
 }
 
+async function deleteUser(data) {
+    let response = null;
+    await axios.post(API_HOST + "/api/users/delete", data).then((res) => {
+        response = res.data.status;
+        console.log(res.data.message);
+    });
+
+    return response;
+}
+
+async function uploadProfileImage(formData) {
+    let response = null;
+    await axios({
+        method: "POST",
+        url: API_HOST + "/api/uploadprofileimage",
+        data: formData,
+    }).then((res) => {
+        console.log(res.data.message);
+        if(res.data.image) {
+            response = res.data.image;
+        }
+    });
+    return response;
+}
+
+async function deleteImage(data) {
+    await axios.post(API_HOST + "/api/deleteimage", data).then((res) => {
+        console.log(res.data.message);
+    });
+
+    return null;
+}
+
+async function updateUser(user) {
+    const response = await axios.post(API_HOST + "/api/users/updateprofile", user);
+
+    return response.data;
+}
+
+// --- Post ---------------------------------------------------------------------------------------
+async function getPostData(userid) {
+    const response = await axios.get(API_HOST + `/api/posts/userposts/${userid}`);
+
+    return response.data;
+}
+
+// --- Reply --------------------------------------------------------------------------------------
+async function getReplyIDs(postid) {
+    const response = await axios.post(API_HOST + "/api/replies/userreplies", postid);
+
+    return response.data;
+}
+
 // --- Helper functions to interact with local storage --------------------------------------------
 function setUser(user) {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -64,6 +117,7 @@ function removeSelectedUser() {
 
 export {
     verifyUser, findUser, findUserByUsername, setUser,
-    setSelectedUser, createUser, getUser,
+    setSelectedUser, createUser, deleteUser, getUser, updateUser,
+    uploadProfileImage, deleteImage, getPostData, getReplyIDs,
     getSelectedUser, removeUser, removeSelectedUser
 }
