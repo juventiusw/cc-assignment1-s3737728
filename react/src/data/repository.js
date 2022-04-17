@@ -3,9 +3,9 @@ import axios from "axios";
 // --- Constants ----------------------------------------------------------------------------------
 const USER_KEY = "user";
 const SELUSER_KEY = "seluser";
-// const LOCALHOST = "http://localhost:4000"; // USE THIS WHEN DEVELOPING LOCALLY
-const GATEWAY = "https://d13dp2cyque0mj.cloudfront.net"; // USE THIS WHEN APP IS DEPLOYED
-const API_HOST = GATEWAY;
+const LOCALHOST = "http://localhost:4000"; // USE THIS WHEN DEVELOPING LOCALLY
+// const GATEWAY = "https://d13dp2cyque0mj.cloudfront.net"; // USE THIS WHEN APP IS DEPLOYED
+const API_HOST = LOCALHOST;
 
 // --- User ---------------------------------------------------------------------------------------
 async function verifyUser(data) {
@@ -77,6 +77,71 @@ async function updateUser(user) {
 }
 
 // --- Post ---------------------------------------------------------------------------------------
+async function getPosts() {
+    const response = await axios.get(API_HOST + "/api/posts");
+
+    return response.data;
+}
+
+async function createPost(post) {
+    const response = await axios.post(API_HOST + "/api/posts", post);
+
+    return response.data;
+}
+
+async function deletePost(postid) {
+    await axios.post(API_HOST + `/api/posts/delete/${postid}`).then((res) => {
+        console.log(res.data.message);
+    });
+
+    return null;
+}
+
+async function updatePost(post) {
+    const response = await axios.put(API_HOST + "/api/posts/update", post);
+
+    return response.data;
+}
+
+async function uploadPostImage(formData) {
+    let response = null;
+    await axios({
+        method: "POST",
+        url: API_HOST + "/api/uploadpostimage",
+        data: formData,
+    }).then((res) => {
+        console.log(res.data.message);
+        if(res.data.image) {
+            response = res.data.image;
+        }
+    });
+    return response;
+}
+
+async function likePost(data) {
+    await axios.post(API_HOST + "/api/posts/like", data).then((res) => {
+        console.log(res.data.message);
+    });
+
+    return null;
+}
+
+async function dislikePost(data) {
+    await axios.post(API_HOST + "/api/posts/dislike", data).then((res) => {
+        console.log(res.data.message);
+    });
+
+    return null;
+}
+
+async function deleteLikePost(data) {
+    await axios.post(API_HOST + "/api/posts/deletelike", data).then((res) => {
+        console.log(res.data.message);
+    });
+
+    return null;
+}
+
 async function getPostData(userid) {
     const response = await axios.get(API_HOST + `/api/posts/userposts/${userid}`);
 
@@ -84,6 +149,56 @@ async function getPostData(userid) {
 }
 
 // --- Reply --------------------------------------------------------------------------------------
+async function getReplies() {
+    const response = await axios.get(API_HOST + "/api/replies");
+
+    return response.data;
+}
+
+async function createReply(reply) {
+    const response = await axios.post(API_HOST + "/api/replies", reply);
+
+    return response.data;
+}
+
+async function deleteReply(replyid) {
+    await axios.post(API_HOST + `/api/replies/delete/${replyid}`).then((res) => {
+        console.log(res.data.message);
+    });
+
+    return null;
+}
+
+async function updateReply(reply) {
+    const response = await axios.put(API_HOST + "/api/replies/update", reply);
+
+    return response.data;
+}
+
+async function likeReply(data) {
+    await axios.post(API_HOST + "/api/replies/like", data).then((res) => {
+        console.log(res.data.message);
+    });
+
+    return null;
+}
+
+async function dislikeReply(data) {
+    await axios.post(API_HOST + "/api/replies/dislike", data).then((res) => {
+        console.log(res.data.message);
+    });
+
+    return null;
+}
+
+async function deleteLikeReply(data) {
+    await axios.post(API_HOST + "/api/replies/deletelike", data).then((res) => {
+        console.log(res.data.message);
+    });
+
+    return null;
+}
+
 async function getReplyIDs(postid) {
     const response = await axios.post(API_HOST + "/api/replies/userreplies", postid);
 
@@ -118,6 +233,9 @@ function removeSelectedUser() {
 export {
     verifyUser, findUser, findUserByUsername, setUser,
     setSelectedUser, createUser, deleteUser, getUser, updateUser,
-    uploadProfileImage, deleteImage, getPostData, getReplyIDs,
-    getSelectedUser, removeUser, removeSelectedUser
+    getPosts, createPost, deletePost, updatePost, uploadPostImage,
+    likePost, dislikePost, deleteLikePost, uploadProfileImage,
+    deleteImage, getPostData, getReplies, createReply, deleteReply,
+    updateReply, likeReply, dislikeReply, deleteLikeReply,
+    getReplyIDs, getSelectedUser, removeUser, removeSelectedUser
 }

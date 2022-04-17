@@ -20,7 +20,7 @@ export default function Navbar(props) {
                                 <Link className="nav-link" to="/profile">My Profile</Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link" to="/forum">Forum</Link>
+                                <Link className="nav-link" to="/forum">Discussion Board</Link>
                             </li>
                             <li>
                                 <Link className="nav-link" to="/userlist">User List</Link>

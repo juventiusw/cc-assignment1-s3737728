@@ -9,6 +9,7 @@ import Register from "./Register";
 import Login from "./Login";
 import MyProfile from "./MyProfile";
 import EditProfile from "./EditProfile";
+import Forum from "./Forum";
 import { getUser, getSelectedUser, removeUser, removeSelectedUser } from "../data/repository";
 
 export default function App() {
@@ -44,6 +45,9 @@ export default function App() {
               </Route>
               <Route path="/editprofile">
                 <EditProfile user={user} setUser={setUser} />
+              </Route>
+              <Route path="/forum">
+                <Forum user={user} />
               </Route>
               <Route path="/">
                 <Header />
