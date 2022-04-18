@@ -180,8 +180,8 @@ exports.userposts = async (req, res) => {
         }
     };
     try {
-        const users = await dynamo.dynamoClient.scan(params).promise();
-        res.json(users.Items);
+        const posts = await dynamo.dynamoClient.scan(params).promise();
+        res.json(posts.Items);
     }catch (err) {
         console.log(err);
     }

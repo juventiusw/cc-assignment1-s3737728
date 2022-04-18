@@ -241,7 +241,7 @@ export default function Forum(props) {
             return;
         }
 
-        const newReply = { replyContent: replyTrimmed, userid: props.user.userid, postid: isReplying };
+        const newReply = { content: replyTrimmed, userid: props.user.userid, postid: isReplying };
 
         const receivedReply = await createReply(newReply);
 
@@ -282,7 +282,7 @@ export default function Forum(props) {
         const updatedReplies = [];
         for(const reply of replies) {
             if(reply.replyid === isReplySelected) {
-                reply.replyContent = editMyReply;
+                reply.content = editMyReply;
                 // Update reply.
                 await updateReply(reply);
             }
