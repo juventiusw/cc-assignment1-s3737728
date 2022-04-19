@@ -46,7 +46,6 @@ export default function Forum(props) {
             setReplies(currentReplies);
             setIsLoading(false);
         }
-
         loadForum();
     }, []);
 
@@ -134,7 +133,7 @@ export default function Forum(props) {
         }
 
         // Create post.
-        const newPost = { content: trimmedPost, userid: props.user.userid };
+        const newPost = { postContent: trimmedPost, userid: props.user.userid };
 
         if(imageFile !== null) {
             // Create post with image
@@ -181,7 +180,7 @@ export default function Forum(props) {
         const updatedPosts = [];
         for(const post of posts) {
             if(post.postid === isPostSelected) {
-                post.content = editMyPostTrimmed;
+                post.postContent = editMyPostTrimmed;
                 // Update post.
                 await updatePost(post);
             }
@@ -209,8 +208,10 @@ export default function Forum(props) {
             }else {
                 // Delete the post's image as well if exists
                 if(post.postImage != null) {
+                    const justname = post.postImage.split('https://a1-react-assets-uploads.s3.amazonaws.com/').pop();
+                    console.log(justname);
                     const data = {
-                        filename: post.postImage
+                        filename: justname
                     };
                     await deleteImage(data);
                 }
@@ -241,7 +242,7 @@ export default function Forum(props) {
             return;
         }
 
-        const newReply = { content: replyTrimmed, userid: props.user.userid, postid: isReplying };
+        const newReply = { replyContent: replyTrimmed, userid: props.user.userid, postid: isReplying };
 
         const receivedReply = await createReply(newReply);
 
@@ -282,7 +283,7 @@ export default function Forum(props) {
         const updatedReplies = [];
         for(const reply of replies) {
             if(reply.replyid === isReplySelected) {
-                reply.content = editMyReply;
+                reply.replyContent = editMyReply;
                 // Update reply.
                 await updateReply(reply);
             }
@@ -318,10 +319,10 @@ export default function Forum(props) {
             // if post id is match
             if(x.postid === pid) {
                 // Check if the current user is liking this post
-                if(x.likes.filter(y => y.like_posts.userid === props.user.userid && y.like_posts.choice).length === 1) {
+                if(x.likes.filter(y => y.userid === props.user.userid && y.choice).length === 1) {
                     status = true;
                     // Check if the current user is disliking this post
-                }else if(x.likes.filter(y => y.like_posts.userid === props.user.userid && !y.like_posts.choice).length === 1){
+                }else if(x.likes.filter(y => y.userid === props.user.userid && !y.choice).length === 1){
                     status = false;
                     // Return null if the current user is not liking or disliking this post
                 }else {
@@ -355,31 +356,29 @@ export default function Forum(props) {
             await likePost(data);
         }
 
-        const fulldata = {
-            like_posts: data,
-            username: props.user.username
-        };
+        data['username'] = props.user.username;
 
         // Update state
         const updatedPosts = [];
         for(const post of posts) {
             if(post.postid === pid) {
                 if(status === null) {
-                    post.likes.push(fulldata);
+                    post.likes.push(data);
                 }else if(status) {
                     post.likes = post.likes.filter((x) => {
-                        return x.like_posts.userid !== props.user.userid;
+                        return x.userid !== props.user.userid;
                     })
                 }else {
                     post.likes = post.likes.filter((x) => {
-                        return x.like_posts.userid !== props.user.userid;
+                        return x.userid !== props.user.userid;
                     })
-                    post.likes.push(fulldata);
+                    post.likes.push(data);
                 }
             }
             updatedPosts.push(post);
         }
         setPosts(updatedPosts);
+        console.log(posts);
     }
 
     async function handleDislikePost(pid) {
@@ -405,25 +404,22 @@ export default function Forum(props) {
             await deleteLikePost(data);
         }
 
-        const fulldata = {
-            like_posts: data,
-            username: props.user.username
-        };
+        data['username'] = props.user.username;
 
         // Update state
         const updatedPosts = [];
         for(const post of posts) {
             if(post.postid === pid) {
                 if(status === null) {
-                    post.likes.push(fulldata);
+                    post.likes.push(data);
                 }else if(status) {
                     post.likes = post.likes.filter((x) => {
-                        return x.like_posts.userid !== props.user.userid;
+                        return x.userid !== props.user.userid;
                     })
-                    post.likes.push(fulldata);
+                    post.likes.push(data);
                 }else {
                     post.likes = post.likes.filter((x) => {
-                        return x.like_posts.userid !== props.user.userid;
+                        return x.userid !== props.user.userid;
                     })
                 }
             }
@@ -438,10 +434,10 @@ export default function Forum(props) {
             // if reply id is match
             if(x.replyid === rid) {
                 // Check if the current user is liking this reply
-                if(x.likes.filter(y => y.like_replies.userid === props.user.userid && y.like_replies.choice).length === 1) {
+                if(x.likes.filter(y => y.userid === props.user.userid && y.choice).length === 1) {
                     status = true;
                     // Check if the current user is disliking this reply
-                }else if(x.likes.filter(y => y.like_replies.userid === props.user.userid && !y.like_replies.choice).length === 1){
+                }else if(x.likes.filter(y => y.userid === props.user.userid && !y.choice).length === 1){
                     status = false;
                     // Return null if the current user is not liking or disliking this reply
                 }else {
@@ -475,26 +471,23 @@ export default function Forum(props) {
             await likeReply(data);
         }
 
-        const fulldata = {
-            like_replies: data,
-            username: props.user.username
-        };
+        data['username'] = props.user.username;
 
         // Update state
         const updatedReplies = [];
         for(const reply of replies) {
             if(reply.replyid === rid) {
                 if(status === null) {
-                    reply.likes.push(fulldata);
+                    reply.likes.push(data);
                 }else if(status) {
                     reply.likes = reply.likes.filter((x) => {
-                        return x.like_replies.userid !== props.user.userid;
+                        return x.userid !== props.user.userid;
                     })
                 }else {
                     reply.likes = reply.likes.filter((x) => {
-                        return x.like_replies.userid !== props.user.userid;
+                        return x.userid !== props.user.userid;
                     })
-                    reply.likes.push(fulldata);
+                    reply.likes.push(data);
                 }
             }
             updatedReplies.push(reply);
@@ -525,25 +518,22 @@ export default function Forum(props) {
             await deleteLikeReply(data);
         }
 
-        const fulldata = {
-            like_replies: data,
-            username: props.user.username
-        };
+        data['username'] = props.user.username;
 
         // Update state
         const updatedReplies = [];
         for(const reply of replies) {
             if(reply.replyid === rid) {
                 if(status === null) {
-                    reply.likes.push(fulldata);
+                    reply.likes.push(data);
                 }else if(status) {
                     reply.likes = reply.likes.filter((x) => {
-                        return x.like_replies.userid !== props.user.userid;
+                        return x.userid !== props.user.userid;
                     })
-                    reply.likes.push(fulldata);
+                    reply.likes.push(data);
                 }else {
                     reply.likes = reply.likes.filter((x) => {
-                        return x.like_replies.userid !== props.user.userid;
+                        return x.userid !== props.user.userid;
                     })
                 }
             }
@@ -594,10 +584,10 @@ export default function Forum(props) {
 
             <hr />
 
-            <h1 className="my-5">Forum Discussion</h1>
+            <h1 className="my-5">Discussion Board</h1>
             <div>
                 {isLoading ?
-                    <span className="text-muted">Loading Forum...</span>
+                    <span className="text-muted">Loading Posts...</span>
                     :
                     posts.length === 0 ?
                         <span className="text-muted">No posts have been submitted.</span>
@@ -609,7 +599,7 @@ export default function Forum(props) {
                                         {x.profpic ?
                                             <img src={x.profpic} alt="" className="rounded-circle me-3 border border-dark" height="60" width="60" style={{ marginTop: "-12px" }} />
                                             :
-                                            <img src="assets/blank-profile.png" alt="" className="rounded-circle me-3 border border-dark" height="60" width="60" style={{ marginTop: "-12px" }} />
+                                            <img src="https://a1-react-assets.s3.amazonaws.com/blank-profile.png" alt="" className="rounded-circle me-3 border border-dark" height="60" width="60" style={{ marginTop: "-12px" }} />
                                         }
                                         <h2 className="text-primary d-inline-block mt-2">{x.username}</h2>
                                         <div className="d-inline float-end">
@@ -640,13 +630,13 @@ export default function Forum(props) {
                                                 <p>{x.postContent}</p>
                                             </div>
                                             <div className="col">
-                                                <div className={`${styles.dislike} grow mx-3 ${x.likes.filter(y => y.like_posts.userid === props.user.userid && y.like_posts.choice).length === 1 && styles.active}`} onClick={() => { handleLikePost(x.postid) }}>
+                                                <div className={`${styles.dislike} grow mx-3 ${x.likes.filter(y => y.userid === props.user.userid && y.choice).length === 1 && styles.active}`} onClick={() => { handleLikePost(x.postid) }}>
                                                     <i className="fa fa-thumbs-up fa-2x like me-2" aria-hidden="true"></i>
-                                                    <h3 className="d-inline">{x.likes.filter(y => y.like_posts.choice).length}</h3>
+                                                    <h3 className="d-inline">{x.likes.filter(y => y.choice).length}</h3>
                                                 </div>
-                                                <div className={`${styles.dislike} grow mx-3 ${x.likes.filter(y => y.like_posts.userid === props.user.userid && !y.like_posts.choice).length === 1 && styles.active}`} onClick={() => { handleDislikePost(x.postid) }}>
+                                                <div className={`${styles.dislike} grow mx-3 ${x.likes.filter(y => y.userid === props.user.userid && !y.choice).length === 1 && styles.active}`} onClick={() => { handleDislikePost(x.postid) }}>
                                                     <i className="fa fa-thumbs-down fa-2x like me-2" aria-hidden="true"></i>
-                                                    <h3 className="d-inline">{x.likes.filter(y => !y.like_posts.choice).length}</h3>
+                                                    <h3 className="d-inline">{x.likes.filter(y => !y.choice).length}</h3>
                                                 </div>
                                             </div>
                                         </div>
@@ -681,7 +671,7 @@ export default function Forum(props) {
                                                     {y.profpic ?
                                                         <img src={y.profpic} alt="" className="rounded-circle me-3 border border-dark" height="50" width="50" style={{ marginTop: "-8px" }} />
                                                         :
-                                                        <img src="assets/blank-profile.png" alt="" className="rounded-circle me-3 border border-dark" height="50" width="50" style={{ marginTop: "-8px" }} />
+                                                        <img src="https://a1-react-assets.s3.amazonaws.com/blank-profile.png" alt="" className="rounded-circle me-3 border border-dark" height="50" width="50" style={{ marginTop: "-8px" }} />
                                                     }
 
                                                     <h3 className="text-primary d-inline-block mt-2">{y.username}</h3>
@@ -712,13 +702,13 @@ export default function Forum(props) {
                                                             <p className="mt-3">{y.replyContent}</p>
                                                         </div>
                                                         <div className="col">
-                                                            <div className={`${styles.dislike} grow mx-3 ${y.likes.filter(z => z.like_replies.userid === props.user.userid && z.like_replies.choice).length === 1 && styles.active}`} onClick={() => { handleLikeReply(y.replyid) }}>
+                                                            <div className={`${styles.dislike} grow mx-3 ${y.likes.filter(z => z.userid === props.user.userid && z.choice).length === 1 && styles.active}`} onClick={() => { handleLikeReply(y.replyid) }}>
                                                                 <i className="fa fa-thumbs-up fa-2x like me-2" aria-hidden="true"></i>
-                                                                <h3 className="d-inline">{y.likes.filter(z => z.like_replies.choice).length}</h3>
+                                                                <h3 className="d-inline">{y.likes.filter(z => z.choice).length}</h3>
                                                             </div>
-                                                            <div className={`${styles.dislike} grow mx-3 ${y.likes.filter(z => z.like_replies.userid === props.user.userid && !z.like_replies.choice).length === 1 && styles.active}`} onClick={() => { handleDislikeReply(y.replyid) }}>
+                                                            <div className={`${styles.dislike} grow mx-3 ${y.likes.filter(z => z.userid === props.user.userid && !z.choice).length === 1 && styles.active}`} onClick={() => { handleDislikeReply(y.replyid) }}>
                                                                 <i className="fa fa-thumbs-down fa-2x like me-2" aria-hidden="true"></i>
-                                                                <h3 className="d-inline">{y.likes.filter(z => !z.like_replies.choice).length}</h3>
+                                                                <h3 className="d-inline">{y.likes.filter(z => !z.choice).length}</h3>
                                                             </div>
                                                         </div>
                                                     </div>

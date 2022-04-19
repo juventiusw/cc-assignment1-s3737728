@@ -13,7 +13,7 @@ app.use(express.json()); // Add CORS support.
 
 app.use(cors());
 app.get('/', function (req, res) {
-  res.send('flowers smell nice');
+  res.send('flowers smell nice!');
 });
 app.get("/api", function (req, res) {
   res.json({
@@ -22,6 +22,12 @@ app.get("/api", function (req, res) {
 }); //Add routes
 
 require('./routes/user.routes')(express, app);
+
+require("./routes/post.routes.js")(express, app);
+
+require("./routes/reply.routes.js")(express, app);
+
+require("./routes/image.routes.js")(express, app);
 
 var PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {

@@ -10,6 +10,12 @@ import Login from "./Login";
 import MyProfile from "./MyProfile";
 import EditProfile from "./EditProfile";
 import Forum from "./Forum";
+import UserList from "./UserList";
+import UserProfile from "./UserProfile";
+import Followers from "./Followers";
+import OtherFollowers from "./OtherFollowers";
+import Following from "./Following";
+import OtherFollowing from "./OtherFollowing";
 import { getUser, getSelectedUser, removeUser, removeSelectedUser } from "../data/repository";
 
 export default function App() {
@@ -48,6 +54,24 @@ export default function App() {
               </Route>
               <Route path="/forum">
                 <Forum user={user} />
+              </Route>
+              <Route path="/userlist">
+                <UserList user={user} setSelectedUser={setSelectedUser} />
+              </Route>
+              <Route path="/userprofile">
+                <UserProfile user={user} selectedUser={selectedUser} setUser={setUser} setSelectedUser={setSelectedUser} />
+              </Route>
+              <Route path="/followers">
+                <Followers user={user} setSelectedUser={setSelectedUser} />
+              </Route>
+              <Route path="/otherfollowers">
+                <OtherFollowers selectedUser={selectedUser} user={user} setSelectedUser={setSelectedUser} />
+              </Route>
+              <Route path="/following">
+                <Following user={user} setSelectedUser={setSelectedUser} />
+              </Route>
+              <Route path="/otherfollowing">
+                <OtherFollowing selectedUser={selectedUser} user={user} setSelectedUser={setSelectedUser} />
               </Route>
               <Route path="/">
                 <Header />

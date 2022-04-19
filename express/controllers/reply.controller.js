@@ -19,12 +19,12 @@ exports.create = async (req, res) => {
     const params = {
         TableName: 'reply',
         Key: {
-            'replyid': req.body.replyid
+            'replyid': 'r' + Date.now() + Math.random()
         },
         UpdateExpression: 'SET replyContent = :replyContent, userid = :userid, postid = :postid, likes = :likes',
         ConditionExpression: 'attribute_not_exists(replyid)',
         ExpressionAttributeValues: {
-            ':replyContent': req.body.content,
+            ':replyContent': req.body['replyContent'],
             ':userid': req.body.userid,
             ':postid': req.body.postid,
             ':likes': []
@@ -67,7 +67,7 @@ exports.update = async(req, res) => {
         UpdateExpression: 'SET replyContent = :replyContent',
         ConditionExpression: 'attribute_exists(replyid)',
         ExpressionAttributeValues: {
-            ':replyContent': req.body.content
+            ':replyContent': req.body['replyContent']
         },
         ReturnValues: 'ALL_NEW'
     };
@@ -154,11 +154,8 @@ exports.deletelike = async (req, res) => {
                 Key: {
                     'replyid': req.body.replyid
                 },
-                UpdateExpression: 'REMOVE likes[:index]',
-                ConditionExpression: 'attribute_exists(replyid)',
-                ExpressionAttributeValues: {
-                    ':index': myIndex
-                }
+                UpdateExpression: 'REMOVE likes['+myIndex+']',
+                ConditionExpression: 'attribute_exists(replyid)'
             }
             await dynamo.dynamoClient.update(deleteParams).promise();
             res.send({

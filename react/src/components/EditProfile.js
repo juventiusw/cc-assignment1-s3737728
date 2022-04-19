@@ -83,7 +83,6 @@ export default function EditProfile(props) {
             // Delete the user's previous profile picture
             if(props.user.profpic != null) {
                 const justname = props.user.profpic.split('https://a1-react-assets-uploads.s3.amazonaws.com/').pop();
-                console.log(justname);
                 const data = {
                     filename: justname
                 };

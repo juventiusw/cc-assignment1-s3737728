@@ -46,11 +46,15 @@ exports.delete = async (req, res) => {
         s3.deleteObject({
             Bucket: 'a1-react-assets-uploads',
             Key: req.body.filename
-        }, function (err, data) { });
-
-        res.send({
-            status: true,
-            message: "File deleted!"
+        }, function (err, data) {
+            if(err) {
+                console.log(err);
+            }else {
+                res.send({
+                    status: true,
+                    message: "File deleted!"
+                });
+            }
         });
     }catch (err) {
         console.log(err);

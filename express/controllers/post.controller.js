@@ -16,16 +16,20 @@ exports.all = async (req, res) => {
 
 // Create a post in the database.
 exports.create = async (req, res) => {
+    let postImage = null;
+    if(req.body.postImage) {
+        postImage = req.body.postImage;
+    }
     const params = {
         TableName: 'post',
         Key: {
-            'postid': req.body.postid
+            'postid': 'p' + Date.now() + Math.random()
         },
         UpdateExpression: 'SET postContent = :postContent, postImage = :postImage, userid = :userid, likes = :likes',
         ConditionExpression: 'attribute_not_exists(postid)',
         ExpressionAttributeValues: {
-            ':postContent': req.body.content,
-            ':postImage': req.body.postImage,
+            ':postContent': req.body['postContent'],
+            ':postImage': postImage,
             ':userid': req.body.userid,
             ':likes': []
         },
@@ -41,14 +45,31 @@ exports.create = async (req, res) => {
 
 // Delete a post in the database.
 exports.delete = async(req, res) => {
-    const params = {
+    const postParams = {
         TableName: 'post',
         Key: {
-            'postid': req.body.postid
+            'postid': req.params.postid
+        }
+    };
+    const replyParams = {
+        TableName: 'reply',
+        FilterExpression: 'postid = :postid',
+        ExpressionAttributeValues: {
+            ':postid': req.params.postid
         }
     };
     try {
-        await dynamo.dynamoClient.delete(params).promise();
+        const replies = await dynamo.dynamoClient.scan(replyParams).promise();
+        for(const reply of replies.Items) {
+            const deleteReplyparams = {
+                TableName: 'reply',
+                Key: {
+                    'replyid': reply.replyid
+                }
+            }
+            await dynamo.dynamoClient.delete(deleteReplyparams).promise();
+        }
+        await dynamo.dynamoClient.delete(postParams).promise();
         res.send({
             message: "Post deleted."
         });
@@ -67,7 +88,7 @@ exports.update = async(req, res) => {
         UpdateExpression: 'SET postContent = :postContent',
         ConditionExpression: 'attribute_exists(postid)',
         ExpressionAttributeValues: {
-            ':postContent': req.body.content
+            ':postContent': req.body['postContent']
         },
         ReturnValues: 'ALL_NEW'
     };
@@ -154,11 +175,8 @@ exports.deletelike = async (req, res) => {
                 Key: {
                     'postid': req.body.postid
                 },
-                UpdateExpression: 'REMOVE likes[:index]',
-                ConditionExpression: 'attribute_exists(postid)',
-                ExpressionAttributeValues: {
-                    ':index': myIndex
-                }
+                UpdateExpression: 'REMOVE likes['+myIndex+']',
+                ConditionExpression: 'attribute_exists(postid)'
             }
             await dynamo.dynamoClient.update(deleteParams).promise();
             res.send({

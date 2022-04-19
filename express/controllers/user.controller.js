@@ -102,12 +102,16 @@ exports.login = async (req, res) => {
     try {
         const user = await dynamo.dynamoClient.scan(params).promise();
         let state = typeof user.Items[0];
-        console.log(bcrypt.compareSync(req.body.password, user.Items[0].password_hash));
-        if(state === "undefined" || bcrypt.compareSync(req.body.password, user.Items[0].password_hash) === false) {
+        if(state === "undefined") {
             // Login failed.
             res.json(null);
         }else {
-            res.json(user.Items[0]);
+            if(bcrypt.compareSync(req.body.password, user.Items[0].password_hash) === false) {
+                // Login failed.
+                res.json(null);
+            }else {
+                res.json(user.Items[0]);
+            }
         }
     }catch (err) {
         console.log(err);
@@ -135,5 +139,100 @@ exports.update = async (req, res) => {
         res.json(user.Attributes);
     }catch (err) {
         console.log(err)
+    }
+}
+
+exports.follow = async (req, res) => {
+    const sourceData = {
+        'userid': req.body.followeeid,
+        'fullname': req.body.followeeFullname,
+        'username': req.body.followeeUsername
+    }
+    const sourceParams = {
+        TableName: 'user',
+        Key: {
+            'userid': req.body.followerid
+        },
+        UpdateExpression: 'SET following = list_append(following, :followeeid)',
+        ConditionExpression: 'attribute_exists(userid) AND NOT contains(followers, :followeeidobj)',
+        ExpressionAttributeValues: {
+            ':followeeid': [ sourceData ],
+            ':followeeidobj': sourceData
+        }
+    };
+    const targetData = {
+        'userid': req.body.followerid,
+        'fullname': req.body.followerFullname,
+        'username': req.body.followerUsername
+    }
+    const targetParams = {
+        TableName: 'user',
+        Key: {
+            'userid': req.body.followeeid
+        },
+        UpdateExpression: 'SET followers = list_append(followers, :followerid)',
+        ConditionExpression: 'attribute_exists(userid) AND NOT contains(followers, :followeridobj)',
+        ExpressionAttributeValues: {
+            ':followerid': [ targetData ],
+            ':followeridobj': targetData
+        }
+    };
+    try {
+        await dynamo.dynamoClient.update(sourceParams).promise();
+        await dynamo.dynamoClient.update(targetParams).promise();
+        res.json({
+            'followerid': req.body.followerid,
+            'followeeid': req.body.followeeid
+        });
+    }catch (err) {
+        console.log(err)
+    }
+}
+
+exports.unfollow = async (req, res) => {
+    const getSourceParams = {
+        TableName: 'user',
+        Key: {
+            'userid': req.body.followerid
+        }
+    };
+    const getTargetParams = {
+        TableName: 'user',
+        Key: {
+            'userid': req.body.followeeid
+        }
+    };
+    try {
+        // Get the index first
+        const sourceUser = await dynamo.dynamoClient.get(getSourceParams).promise();
+        const mySourceIndex = sourceUser.Item.following.findIndex(i => i.userid === req.body.followeeid);
+        const targetUser = await dynamo.dynamoClient.get(getTargetParams).promise();
+        const myTargetIndex = targetUser.Item.followers.findIndex(i => i.userid === req.body.followerid);
+        // Then delete element based on the index
+        if((mySourceIndex || mySourceIndex === 0) && (myTargetIndex || myTargetIndex === 0)) {
+            const deleteSourceParams = {
+                TableName: 'user',
+                Key: {
+                    'userid': req.body.followerid
+                },
+                UpdateExpression: 'REMOVE following['+mySourceIndex+']',
+                ConditionExpression: 'attribute_exists(userid)'
+            }
+            const deleteTargetParams = {
+                TableName: 'user',
+                Key: {
+                    'userid': req.body.followeeid
+                },
+                UpdateExpression: 'REMOVE followers['+myTargetIndex+']',
+                ConditionExpression: 'attribute_exists(userid)'
+            }
+            await dynamo.dynamoClient.update(deleteSourceParams).promise();
+            await dynamo.dynamoClient.update(deleteTargetParams).promise();
+            res.send({
+                message: "Unfollowed."
+            });
+        }
+    }catch (err) {
+        console.log(err);
     }
 }

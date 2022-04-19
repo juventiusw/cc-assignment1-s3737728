@@ -4,7 +4,7 @@ import axios from "axios";
 const USER_KEY = "user";
 const SELUSER_KEY = "seluser";
 const LOCALHOST = "http://localhost:4000"; // USE THIS WHEN DEVELOPING LOCALLY
-// const GATEWAY = "https://d13dp2cyque0mj.cloudfront.net"; // USE THIS WHEN APP IS DEPLOYED
+// const GATEWAY = "https://d13dp2cyque0mj.cloudfront.net"; // USE THIS WHEN DEPLOYING APP TO AWS
 const API_HOST = LOCALHOST;
 
 // --- User ---------------------------------------------------------------------------------------
@@ -17,6 +17,12 @@ async function verifyUser(data) {
         setUser(user);
 
     return user;
+}
+
+async function getUsers() {
+    const response = await axios.get(API_HOST + "/api/users");
+
+    return response.data;
 }
 
 async function findUser(id) {
@@ -76,10 +82,24 @@ async function updateUser(user) {
     return response.data;
 }
 
+async function follow(data) {
+    const response = await axios.post(API_HOST + "/api/users/follow", data);
+
+    return response.data;
+}
+
+async function unfollow(data) {
+    await axios.post(API_HOST + "/api/users/unfollow", data).then((res) => {
+        console.log(res.data.message);
+    })
+
+    return null;
+}
+
 // --- Post ---------------------------------------------------------------------------------------
 async function getPosts() {
-    const response = await axios.get(API_HOST + "/api/posts");
-
+    const response = await axios.get(API_HOST + "/api/posts/");
+    console.log(response.data);
     return response.data;
 }
 
@@ -150,7 +170,7 @@ async function getPostData(userid) {
 
 // --- Reply --------------------------------------------------------------------------------------
 async function getReplies() {
-    const response = await axios.get(API_HOST + "/api/replies");
+    const response = await axios.get(API_HOST + "/api/replies/");
 
     return response.data;
 }
@@ -231,8 +251,9 @@ function removeSelectedUser() {
 }
 
 export {
-    verifyUser, findUser, findUserByUsername, setUser,
+    verifyUser, getUsers, findUser, findUserByUsername, setUser,
     setSelectedUser, createUser, deleteUser, getUser, updateUser,
+    follow, unfollow,
     getPosts, createPost, deletePost, updatePost, uploadPostImage,
     likePost, dislikePost, deleteLikePost, uploadProfileImage,
     deleteImage, getPostData, getReplies, createReply, deleteReply,
