@@ -166,25 +166,3 @@ exports.deletelike = async (req, res) => {
         console.log(err);
     }
 }
-
-// Get all replies that are associated with a number of posts
-exports.userreplies = async (req, res) => {
-    let obj = {};
-    req.body.postid.forEach( (x, i) => {
-        const key = ":postid" + i;
-        obj[key.toString()] = x;
-    });
-    const params = {
-        TableName: 'reply',
-        FilterExpression: 'postid IN ('+Object.keys(obj).toString()+')',
-        ExpressionAttributeValues: {
-            obj
-        }
-    };
-    try {
-        const replies = await dynamo.dynamoClient.scan(params).promise();
-        res.json(replies.Items);
-    }catch (err) {
-        console.log(err);
-    }
-}

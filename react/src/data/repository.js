@@ -219,12 +219,6 @@ async function deleteLikeReply(data) {
     return null;
 }
 
-async function getReplyIDs(postid) {
-    const response = await axios.post(API_HOST + "/api/replies/userreplies", postid);
-
-    return response.data;
-}
-
 // --- Helper functions to interact with local storage --------------------------------------------
 function setUser(user) {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -252,11 +246,10 @@ function removeSelectedUser() {
 
 export {
     verifyUser, getUsers, findUser, findUserByUsername, setUser,
-    setSelectedUser, createUser, deleteUser, getUser, updateUser,
-    follow, unfollow,
-    getPosts, createPost, deletePost, updatePost, uploadPostImage,
+    setSelectedUser, createUser, deleteUser, getUser, updateUser, follow,
+    unfollow, getPosts, createPost, deletePost, updatePost, uploadPostImage,
     likePost, dislikePost, deleteLikePost, uploadProfileImage,
     deleteImage, getPostData, getReplies, createReply, deleteReply,
     updateReply, likeReply, dislikeReply, deleteLikeReply,
-    getReplyIDs, getSelectedUser, removeUser, removeSelectedUser
+    getSelectedUser, removeUser, removeSelectedUser
 }

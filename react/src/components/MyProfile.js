@@ -1,7 +1,7 @@
 import React from "react";
 import { useHistory } from  "react-router-dom";
 import styles from '../css/Profile.module.css';
-import { deleteUser, deleteImage, getPostData, getReplyIDs } from "../data/repository";
+import { deleteUser, deleteImage, getPostData } from "../data/repository";
 
 export default function MyProfile(props) {
     const history = useHistory();
@@ -12,7 +12,7 @@ export default function MyProfile(props) {
 
     async function handleDeleteAccount() {
         const answer = window.confirm("Confirm to delete your account.");
-        if(false) {
+        if(answer) {
             const postdata = await getPostData(props.user.userid);
             const postids = [];
             const postimgs = [];
@@ -22,14 +22,9 @@ export default function MyProfile(props) {
                     postimgs.push(x.postImage);
                 }
             }
-            const sendreplyids = {
-                postid: postids
-            }
-            const replyids = await getReplyIDs(sendreplyids);
             const data = {
                 id: props.user.userid,
                 postid: postids,
-                replyid: replyids
             }
             const isDeleted = await deleteUser(data);
 

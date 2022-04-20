@@ -16,9 +16,11 @@ export default function UserProfile(props) {
             followerid: props.user.userid,
             followerFullname: props.user.fullname,
             followerUsername: props.user.username,
+            followerProfpic: props.user.profpic,
             followeeid: selectedUserState.userid,
             followeeFullname: selectedUserState.fullname,
-            followeeUsername: selectedUserState.username
+            followeeUsername: selectedUserState.username,
+            followeeProfpic: selectedUserState.profpic
         }
         // Follow
         const receive = await follow(send);

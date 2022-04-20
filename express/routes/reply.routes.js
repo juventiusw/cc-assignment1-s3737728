@@ -23,9 +23,6 @@ module.exports = (express, app) =>  {
     // Delete a like or dislike of a post.
     router.post("/deletelike", controller.deletelike);
 
-    // Get the replyid of all replies from a user
-    router.post("/userreplies", controller.userreplies);
-
     // Add routes to server.
     app.use("/api/replies", router);
 }

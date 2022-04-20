@@ -146,7 +146,8 @@ exports.follow = async (req, res) => {
     const sourceData = {
         'userid': req.body.followeeid,
         'fullname': req.body.followeeFullname,
-        'username': req.body.followeeUsername
+        'username': req.body.followeeUsername,
+        'profpic': req.body.followeeProfpic
     }
     const sourceParams = {
         TableName: 'user',
@@ -154,7 +155,7 @@ exports.follow = async (req, res) => {
             'userid': req.body.followerid
         },
         UpdateExpression: 'SET following = list_append(following, :followeeid)',
-        ConditionExpression: 'attribute_exists(userid) AND NOT contains(followers, :followeeidobj)',
+        ConditionExpression: 'attribute_exists(userid) AND NOT contains(following, :followeeidobj)',
         ExpressionAttributeValues: {
             ':followeeid': [ sourceData ],
             ':followeeidobj': sourceData
@@ -163,7 +164,8 @@ exports.follow = async (req, res) => {
     const targetData = {
         'userid': req.body.followerid,
         'fullname': req.body.followerFullname,
-        'username': req.body.followerUsername
+        'username': req.body.followerUsername,
+        'profpic': req.body.followerProfpic
     }
     const targetParams = {
         TableName: 'user',
@@ -231,6 +233,222 @@ exports.unfollow = async (req, res) => {
             res.send({
                 message: "Unfollowed."
             });
+        }
+    }catch (err) {
+        console.log(err);
+    }
+}
+
+exports.delete = async (req, res) => {
+    const replyParams = {
+        TableName: 'reply'
+    };
+    const postParams = {
+        TableName: 'post'
+    };
+    const userParams = {
+        TableName: 'user'
+    }
+    try {
+        await deleteLikesOfReplies(req, replyParams);
+        await deleteLikesOfPosts(req, postParams);
+        await deleteUserFromFollow(req, userParams);
+        await deleteRepliesOfPosts(req);
+        await deleteRepliesOfUser(req);
+        await deletePostsOfUser(req);
+        // Delete the selected user
+        const deleteParams = {
+            TableName: 'user',
+            Key: {
+                'userid': req.body.id
+            }
+        }
+        await dynamo.dynamoClient.delete(deleteParams).promise();
+        res.send({
+            status: true,
+            message: "User Deleted."
+        });
+    }catch (err) {
+        console.log(err);
+    }
+}
+
+const deleteLikesOfReplies = async (req, replyParams) => {
+    // Delete likes of replies belonging to the selected user
+    try {
+        const replies = await dynamo.dynamoClient.scan(replyParams).promise();
+        const userLikingReplies = [];
+        for (const reply of replies.Items) {
+            reply.likes.forEach((x, i) => {
+                if (x.userid === req.body.id) {
+                    userLikingReplies.push({
+                        'replyid': reply.replyid,
+                        'index': i
+                    });
+                }
+            });
+        }
+        for (const x of userLikingReplies) {
+            const params = {
+                TableName: 'reply',
+                Key: {
+                    replyid: x.replyid
+                },
+                UpdateExpression: 'REMOVE likes[' + x.index + ']',
+                ConditionExpression: 'attribute_exists(replyid)'
+            }
+            await dynamo.dynamoClient.update(params).promise();
+        }
+    }catch (err) {
+        console.log(err);
+    }
+}
+
+const deleteLikesOfPosts = async (req, postParams) => {
+    // Delete likes of posts belonging to the selected user
+    try {
+        const posts = await dynamo.dynamoClient.scan(postParams).promise();
+        const userLikingPosts = [];
+        for (const post of posts.Items) {
+            post.likes.forEach((x, i) => {
+                if (x.userid === req.body.id) {
+                    userLikingPosts.push({
+                        'postid': post.postid,
+                        'index': i
+                    });
+                }
+            });
+        }
+        for (const x of userLikingPosts) {
+            const params = {
+                TableName: 'post',
+                Key: {
+                    postid: x.postid
+                },
+                UpdateExpression: 'REMOVE likes[' + x.index + ']',
+                ConditionExpression: 'attribute_exists(postid)'
+            }
+            await dynamo.dynamoClient.update(params).promise();
+        }
+    }catch (err) {
+        console.log(err);
+    }
+}
+
+const deleteUserFromFollow = async (req, userParams) => {
+    // Delete all follow records of the selected user
+    try {
+        const users = await dynamo.dynamoClient.scan(userParams).promise();
+        const userFollow = [];
+        for (const user of users.Items) {
+            const data = {};
+            user.followers.forEach((x, i) => {
+                if (x.userid === req.body.id) {
+                    data['userid'] = user.userid;
+                    data['followerIndex'] = i;
+                }
+            });
+            user.following.forEach((x, i) => {
+                if (x.userid === req.body.id) {
+                    data['userid'] = user.userid;
+                    data['followingIndex'] = i;
+                }
+            });
+            if (Object.keys(data).length) {
+                userFollow.push(data);
+            }
+        }
+        for (const x of userFollow) {
+            if (x.followerIndex || x.followerIndex === 0) {
+                const params = {
+                    TableName: 'user',
+                    Key: {
+                        userid: x.userid
+                    },
+                    UpdateExpression: 'REMOVE followers[' + x.followerIndex + ']',
+                    ConditionExpression: 'attribute_exists(userid)'
+                }
+                await dynamo.dynamoClient.update(params).promise();
+            }
+            if (x.followingIndex || x.followingIndex === 0) {
+                const params = {
+                    TableName: 'user',
+                    Key: {
+                        userid: x.userid
+                    },
+                    UpdateExpression: 'REMOVE following[' + x.followingIndex + ']',
+                    ConditionExpression: 'attribute_exists(userid)'
+                }
+                await dynamo.dynamoClient.update(params).promise();
+            }
+        }
+    }catch (err) {
+        console.log(err);
+    }
+}
+
+const deleteRepliesOfPosts = async (req) => {
+    // delete all the replies that are associated with all the posts that belong to the selected user
+    try {
+        for (const postid of req.body.postid) {
+            const getParams = {
+                TableName: 'reply',
+                FilterExpression: 'postid = :postid',
+                ExpressionAttributeValues: {
+                    ':postid': postid
+                }
+            }
+            const replies = await dynamo.dynamoClient.scan(getParams).promise();
+            for (const reply of replies.Items) {
+                const deleteParams = {
+                    TableName: 'reply',
+                    Key: {
+                        'replyid': reply['replyid']
+                    }
+                }
+                await dynamo.dynamoClient.delete(deleteParams).promise();
+            }
+        }
+    }catch (err) {
+        console.log(err);
+    }
+}
+
+const deleteRepliesOfUser = async (req) => {
+    // Delete all replies of the selected user
+    try {
+        const getParams = {
+            TableName: 'reply',
+            FilterExpression: 'userid = :userid',
+            ExpressionAttributeValues: {
+                ':userid': req.body.id
+            }
+        }
+        const replies = await dynamo.dynamoClient.scan(getParams).promise();
+        for (const reply of replies.Items) {
+            const deleteParams = {
+                TableName: 'reply',
+                Key: {
+                    'replyid': reply['replyid']
+                }
+            }
+            await dynamo.dynamoClient.delete(deleteParams).promise();
+        }
+    }catch (err) {
+        console.log(err);
+    }
+}
+
+const deletePostsOfUser = async (req) => {
+    try {
+        for (const postid of req.body.postid) {
+            const deleteParams = {
+                TableName: 'post',
+                Key: {
+                    'postid': postid
+                }
+            }
+            await dynamo.dynamoClient.delete(deleteParams).promise();
         }
     }catch (err) {
         console.log(err);
