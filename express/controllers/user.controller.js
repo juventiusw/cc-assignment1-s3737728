@@ -68,7 +68,7 @@ exports.create = async(req, res) => {
         Key: {
           'userid': req.body.userid
         },
-        UpdateExpression: 'SET fullname = :fullname, username = :username, email = :email, password_hash = :hash, datejoined = :datejoined, followers = :followers, following = :following',
+        UpdateExpression: 'SET fullname = :fullname, username = :username, email = :email, password_hash = :hash, datejoined = :datejoined, followers = :followers, following = :following, userStatus = :userStatus',
         ConditionExpression: 'attribute_not_exists(userid)',
         ExpressionAttributeValues: {
             ':fullname': req.body.fullname,
@@ -77,7 +77,8 @@ exports.create = async(req, res) => {
             ':hash': hash,
             ':datejoined': req.body.datejoined,
             ':followers': [],
-            ':following': []
+            ':following': [],
+            ':userStatus': true
         },
         ReturnValues: 'ALL_NEW'
     };
@@ -106,7 +107,7 @@ exports.login = async (req, res) => {
             // Login failed.
             res.json(null);
         }else {
-            if(bcrypt.compareSync(req.body.password, user.Items[0].password_hash) === false) {
+            if(bcrypt.compareSync(req.body.password, user.Items[0].password_hash) === false || !user.Items[0].userStatus) {
                 // Login failed.
                 res.json(null);
             }else {
@@ -119,6 +120,10 @@ exports.login = async (req, res) => {
 }
 
 exports.update = async (req, res) => {
+    let profpic = null;
+    if (req.body.profpic) {
+        profpic = req.body.profpic;
+    }
     const params = {
         TableName: 'user',
         Key: {
@@ -127,7 +132,7 @@ exports.update = async (req, res) => {
         UpdateExpression: 'SET profpic = :profpic, fullname = :fullname, username = :username, email = :email',
         ConditionExpression: 'attribute_exists(userid)',
         ExpressionAttributeValues: {
-            ':profpic': req.body.profpic,
+            ':profpic': profpic,
             ':fullname': req.body.fullname,
             ':username': req.body.username,
             ':email': req.body.email
@@ -452,5 +457,77 @@ const deletePostsOfUser = async (req) => {
         }
     }catch (err) {
         console.log(err);
+    }
+}
+
+// Block a user.
+exports.block = async (req, res) => {
+    const params = {
+        TableName: 'user',
+        Key: {
+            'userid': req.params.userid
+        },
+        UpdateExpression: 'SET userStatus = :userStatus',
+        ConditionExpression: 'attribute_exists(userid)',
+        ExpressionAttributeValues: {
+            ':userStatus': false
+        },
+        ReturnValues: 'ALL_NEW'
+    };
+    try {
+        await dynamo.dynamoClient.update(params).promise();
+        res.json({
+            message: "User blocked."
+        });
+    }catch (err) {
+        console.log(err)
+    }
+}
+
+// Unblock a user.
+exports.unblock = async (req, res) => {
+    const params = {
+        TableName: 'user',
+        Key: {
+            'userid': req.params.userid
+        },
+        UpdateExpression: 'SET userStatus = :userStatus',
+        ConditionExpression: 'attribute_exists(userid)',
+        ExpressionAttributeValues: {
+            ':userStatus': true
+        },
+        ReturnValues: 'ALL_NEW'
+    };
+    try {
+        await dynamo.dynamoClient.update(params).promise();
+        res.json({
+            message: "User unblocked."
+        });
+    }catch (err) {
+        console.log(err)
+    }
+}
+
+// Delete user profpic.
+exports.deleteprofpic = async (req, res) => {
+    const params = {
+        TableName: 'user',
+        Key: {
+            'userid': req.params.userid
+        },
+        UpdateExpression: 'SET profpic = :profpic',
+        ConditionExpression: 'attribute_exists(userid)',
+        ExpressionAttributeValues: {
+            ':profpic': null
+        },
+        ReturnValues: 'ALL_NEW'
+    };
+    try {
+        await dynamo.dynamoClient.update(params).promise();
+        res.json({
+            message: "User unblocked."
+        });
+    }catch (err) {
+        console.log(err)
     }
 }

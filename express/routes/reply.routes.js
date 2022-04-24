@@ -1,3 +1,4 @@
+const controller = require("../controllers/post.controller");
 module.exports = (express, app) =>  {
     const controller = require("../controllers/reply.controller.js");
     const router = express.Router();
@@ -22,6 +23,9 @@ module.exports = (express, app) =>  {
 
     // Delete a like or dislike of a post.
     router.post("/deletelike", controller.deletelike);
+
+    // Get the replydata of all posts from a user
+    router.get("/userreplies/:id", controller.userreplies);
 
     // Add routes to server.
     app.use("/api/replies", router);

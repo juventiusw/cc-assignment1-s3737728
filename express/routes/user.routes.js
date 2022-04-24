@@ -1,3 +1,4 @@
+const controller = require("../controllers/user.controller");
 module.exports = (express, app) => {
     const controller = require('../controllers/user.controller.js');
     const router = express.Router();
@@ -28,6 +29,15 @@ module.exports = (express, app) => {
 
     // Delete a user.
     router.post("/delete", controller.delete);
+
+    // Block a user.
+    router.post("/block/:userid", controller.block);
+
+    // Unblock a user.
+    router.post("/unblock/:userid", controller.unblock);
+
+    // Delete user profpic
+    router.post("/deleteprofpic/:userid", controller.deleteprofpic);
 
     app.use("/api/users", router);
 }

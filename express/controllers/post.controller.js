@@ -204,3 +204,26 @@ exports.userposts = async (req, res) => {
         console.log(err);
     }
 }
+
+// Admin delete a post.
+exports.admindelete = async (req, res) => {
+    const params = {
+        TableName: 'post',
+        Key: {
+            'postid': req.params.postid
+        },
+        UpdateExpression: 'SET postContent = :postContent, postImage = :postImage',
+        ConditionExpression: 'attribute_exists(postid)',
+        ExpressionAttributeValues: {
+            ':postContent': '[**** This post has been deleted by the admin ***]',
+            ':postImage': null
+        },
+        ReturnValues: 'ALL_NEW'
+    };
+    try {
+        const post = await dynamo.dynamoClient.update(params).promise();
+        res.json(post.Attributes);
+    }catch (err) {
+        console.log(err)
+    }
+}

@@ -59,6 +59,7 @@ exports.delete = async(req, res) => {
 
 // Update a reply in the database.
 exports.update = async(req, res) => {
+    console.log("update reply");
     const params = {
         TableName: 'reply',
         Key: {
@@ -162,6 +163,23 @@ exports.deletelike = async (req, res) => {
                 message: "Deleted."
             });
         }
+    }catch (err) {
+        console.log(err);
+    }
+}
+
+// Get all replies created by a user
+exports.userreplies = async (req, res) => {
+    const params = {
+        TableName: 'reply',
+        FilterExpression: 'userid = :userid',
+        ExpressionAttributeValues: {
+            ':userid': req.params.id
+        }
+    };
+    try {
+        const posts = await dynamo.dynamoClient.scan(params).promise();
+        res.json(posts.Items);
     }catch (err) {
         console.log(err);
     }

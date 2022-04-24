@@ -31,11 +31,15 @@ export default function MyProfile(props) {
             if(isDeleted) {
                 // Delete user profpic
                 if(props.user.profpic) {
-                    await deleteImage({ filename: props.user.profpic });
+                    const justname = props.user.profpic.split('https://a1-react-assets-uploads.s3.amazonaws.com/').pop();
+                    console.log(justname);
+                    await deleteImage({ filename: justname });
                 }
                 // Delete the image of the posts that have been deleted
                 for(const img of postimgs) {
-                    await deleteImage({ filename: img });
+                    const justname = img.split('https://a1-react-assets-uploads.s3.amazonaws.com/').pop();
+                    console.log(justname);
+                    await deleteImage({ filename: justname });
                 }
             }
 

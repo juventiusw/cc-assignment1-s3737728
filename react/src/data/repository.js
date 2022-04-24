@@ -4,7 +4,7 @@ import axios from "axios";
 const USER_KEY = "user";
 const SELUSER_KEY = "seluser";
 const LOCALHOST = "http://localhost:4000"; // USE THIS WHEN DEVELOPING LOCALLY
-// const GATEWAY = "https://d13dp2cyque0mj.cloudfront.net"; // USE THIS WHEN DEPLOYING APP TO AWS
+const GATEWAY = "https://d13dp2cyque0mj.cloudfront.net"; // USE THIS WHEN DEPLOYING APP TO AWS
 const API_HOST = LOCALHOST;
 
 // --- User ---------------------------------------------------------------------------------------

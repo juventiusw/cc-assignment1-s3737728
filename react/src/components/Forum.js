@@ -209,7 +209,6 @@ export default function Forum(props) {
                 // Delete the post's image as well if exists
                 if(post.postImage != null) {
                     const justname = post.postImage.split('https://a1-react-assets-uploads.s3.amazonaws.com/').pop();
-                    console.log(justname);
                     const data = {
                         filename: justname
                     };
